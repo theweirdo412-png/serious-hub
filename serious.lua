@@ -1,9 +1,10 @@
 -- ====================================================================
--- serious METRIC INTERFACE v2.6 - PLAYER GUI REDIRECT (DISPLAY FIX)
+-- serious ARCHITECTURE v3.0 - METRIC MATRIX & ACTIVE ENGINE
 -- ====================================================================
 
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 
 local LocalPlayer = Players.LocalPlayer
@@ -15,8 +16,20 @@ end
 
 local serious_matrix_hub = Instance.new("ScreenGui")
 serious_matrix_hub.Name = "serious_matrix_hub"
-serious_matrix_hub.Parent = PlayerGui -- FIXED: Saved to PlayerGui to bypass display block
+serious_matrix_hub.Parent = PlayerGui
 serious_matrix_hub.ResetOnSpawn = false
+
+------------------------------------------------------------
+-- CORE FUNCTIONAL STATE
+------------------------------------------------------------
+local ESP_Settings = {
+    Boxes = false,
+    Names = false,
+    Tracers = false,
+    Color = Color3.fromRGB(0, 191, 255) -- Neon Azure Blue
+}
+
+local activeTrackers = {}
 
 -- Main CanvasGroup (Forces clean fade-in execution transitions)
 local Window = Instance.new("CanvasGroup")
@@ -56,7 +69,7 @@ ScriptTitle.TextXAlignment = Enum.TextXAlignment.Left
 ScriptTitle.BackgroundTransparency = 1
 ScriptTitle.Parent = Window
 
--- Horizontal Navbar (Matches top tab strip layout in reference image)
+-- Horizontal Navbar
 local TabsPanel = Instance.new("Frame")
 TabsPanel.Size = UDim2.new(1, -16, 0, 25)
 TabsPanel.Position = UDim2.new(0, 8, 0, 24)
@@ -115,7 +128,6 @@ local function CreatePage(name, order)
     pages[name] = {Left = Left, Right = Right, Button = Btn}
 end
 
--- Section Container Module (Generates outline bounding boxes seen in image)
 local function CreateSection(parentCol, titleText, height)
     local Sec = Instance.new("Frame")
     Sec.Size = UDim2.new(1, 0, 0, height)
@@ -147,7 +159,6 @@ local function CreateSection(parentCol, titleText, height)
     return Container
 end
 
--- Nested Element Standard Injectors
 local function AddToggle(sec, text, callback)
     local F = Instance.new("Frame") F.Size = UDim2.new(1, 0, 0, 18) F.BackgroundTransparency = 1 F.Parent = sec
     local Box = Instance.new("TextButton") Box.Size = UDim2.new(0, 10, 0, 10) Box.Position = UDim2.new(0, 0, 0.5, -5) Box.BackgroundColor3 = Color3.fromRGB(20, 20, 20) Box.BorderColor3 = Color3.fromRGB(255, 255, 255) Box.Text = "" Box.Parent = F
@@ -170,17 +181,17 @@ local function AddDropdown(sec, text, optionText)
     local D = Instance.new("TextButton") D.Size = UDim2.new(1, 0, 0, 16) D.Position = UDim2.new(0, 0, 0, 14) D.BackgroundColor3 = Color3.fromRGB(15, 15, 15) D.BorderColor3 = Color3.fromRGB(255, 255, 255) D.Text = " " .. optionText .. "  ▼" D.TextColor3 = Color3.fromRGB(255, 255, 255) D.Font = Enum.Font.Code D.TextSize = 11 D.TextXAlignment = Enum.TextXAlignment.Left D.Parent = F
 end
 
--- POPULATING TABS
+-- POPULATING PAGES
 CreatePage("main", 1)
 CreatePage("world", 2)
 CreatePage("esp", 3)
 CreatePage("visuals", 4)
 CreatePage("settings", 5)
 
-local MainLeft = pages["main"].Left
-local MainRight = pages["main"].Right
-
--- Left Column Blocks
+------------------------------------------------------------
+-- PAGE 1: MAIN
+------------------------------------------------------------
+local MainLeft, MainRight = pages["main"].Left, pages["main"].Right
 local SilentAimSec = CreateSection(MainLeft, "silent aim / aimbot", 130)
 AddToggle(SilentAimSec, "enabled", function(v) end)
 AddToggle(SilentAimSec, "manipulation", function(v) end)
@@ -194,7 +205,6 @@ AddDropdown(TargetingSec, "ignore if", "shield, katana")
 AddToggle(TargetingSec, "limit distance", function(v) end)
 AddDropdown(TargetingSec, "target part selection", "Head")
 
--- Right Column Blocks
 local TriggerSec = CreateSection(MainRight, "triggerbot core", 45)
 AddToggle(TriggerSec, "enabled", function(v) end)
 
@@ -206,9 +216,6 @@ AddDropdown(WeaponSec, "grenade options", "none")
 
 local RageSec = CreateSection(MainRight, "ragebot configuration", 140)
 AddToggle(RageSec, "enabled", function(v) end)
-AddToggle(RageSec, "void spam", function(v) end)
-AddDropdown(RageSec, "attack matrix mode", "gun")
-AddDropdown(RageSec, "preferred asset slot", "primary")
+AddToggle(RageSec, "void spam", function(v) end)AddDropdown(RageSec, "attack matrix mode", "gun")AddDropdown(RageSec, "preferred asset slot", "primary")
 
--- Boot Tab Highlight Default
-pages["main"].Button.TextColor3 = Color3.fromRGB(0, 191, 255)pages["main"].Button.BorderColor3 = Color3.fromRGB(0, 191, 255)pages["main"].Left.Parent.Visible = true activePage = pages["main"].Left.Parent-- Smooth Scale up and Canvas Group Alpha Transition Fading LoopWindow.Size = UDim2.new(0, 480, 0, 400)Window.Position = UDim2.new(0.5, -240, 0.5, -200)TweenService:Create(Window, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {GroupTransparency = 0, Size = UDim2.new(0, 520, 0, 440), Position = UDim2.new(0.5, -260, 0.5, -220)}):Play()-- Global Control Panel Overlay Toggle Bind (LeftControl)local windowOpen = trueUserInputService.InputBegan:Connect(function(input, processed)if not processed and input.KeyCode == Enum.KeyCode.LeftControl thenwindowOpen = not windowOpen Window.Visible = windowOpenendend)
+-- PAGE 3: ESP (FUNCTIONAL BACKEND INTERFACES)local ESPLeft, ESPRight = pages["esp"].Left, pages["esp"].Rightlocal EnemyESP = CreateSection(ESPLeft, "enemy tracking settings", 110)AddToggle(EnemyESP, "bounding boxes", function(state)ESP_Settings.Boxes = stateend)AddToggle(EnemyESP, "name tags", function(state)ESP_Settings.Names = stateend)AddToggle(EnemyESP, "line tracers", function(state)ESP_Settings.Tracers = stateend)-- VISUAL TRACKING ACTIVE RENDERING PIPELINElocal function createTrackerGui(instance, name)if activeTrackers[instance] then return endlocal bbGui = Instance.new("BillboardGui")bbGui.Name = "ActiveMatrixNode"bbGui.Size = UDim2.new(0, 130, 0, 45)bbGui.AlwaysOnTop = truebbGui.ExtentsOffset = Vector3.new(0, 1.5, 0)bbGui.Adornee = instancebbGui.Parent = serious_matrix_hub-- Custom Retro 2D Box Outlinelocal borderBox = Instance.new("Frame")borderBox.Size = UDim2.new(1, 0, 1, 0)borderBox.BackgroundTransparency = 1borderBox.BorderSizePixel = 1borderBox.BorderColor3 = ESP_Settings.ColorborderBox.Visible = falseborderBox.Parent = bbGui-- Tag Labellocal label = Instance.new("TextLabel")label.Size = UDim2.new(1, 0, 0, 12)label.Position = UDim2.new(0, 0, 0, -14)label.BackgroundTransparency = 1label.Text = string.upper(name)label.TextColor3 = Color3.fromRGB(255, 255, 255)label.Font = Enum.Font.Codelabel.TextSize = 10label.Visible = falselabel.Parent = bbGuiactiveTrackers[instance] = {Gui = bbGui, Box = borderBox, Label = label}endRunService.RenderStepped:Connect(function()-- Deep scan map elements to support both Firing Range bots and Public Userslocal targets = workspace:GetDescendants()for i = 1, #targets dolocal obj = targets[i]if obj:IsA("BasePart") and (obj.Name == "Target" or (obj.Name == "Head" and not Players:GetPlayerFromCharacter(obj.Parent))) thenif not obj:IsDescendantOf(LocalPlayer.Character) thencreateTrackerGui(obj, obj.Parent.Name or "Target")local element = activeTrackers[obj]if element thenelement.Box.Visible = ESP_Settings.Boxeselement.Label.Visible = ESP_Settings.Nameselement.Box.BorderColor3 = ESP_Settings.Colorendendendend-- Clean up despawned elementsfor part, element in pairs(activeTrackers) doif not part or not part.Parent thenif element.Gui then element.Gui:Destroy() endactiveTrackers[part] = nilendendend)-- Boot Configurationpages["main"].Button.TextColor3 = Color3.fromRGB(0, 191, 255)pages["main"].Button.BorderColor3 = Color3.fromRGB(0, 191, 255)pages["main"].Left.Parent.Visible = true activePage = pages["main"].Left.Parent-- Initialization AnimationWindow.Size = UDim2.new(0, 480, 0, 400)Window.Position = UDim2.new(0.5, -240, 0.5, -200)TweenService:Create(Window, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {GroupTransparency = 0, Size = UDim2.new(0, 520, 0, 440), Position = UDim2.new(0.5, -260, 0.5, -220)}):Play()-- Open/Close keybind handlerlocal windowOpen = trueUserInputService.InputBegan:Connect(function(input, processed)if not processed and input.KeyCode == Enum.KeyCode.LeftControl thenwindowOpen = not windowOpen Window.Visible = windowOpenendend)
