@@ -1,5 +1,5 @@
 -- ====================================================================
--- serious COMPACT MATRIX BUILD v3.2 - FINAL SYNCHRONIZED MASTER
+-- serious METRIC MATRIX v3.4 - NEON ADORNEE ENGINE (FIXED RES)
 -- ====================================================================
 
 local TweenService = game:GetService("TweenService")
@@ -37,7 +37,7 @@ Window.Size = UDim2.new(0, 320, 0, 220)
 Window.Position = UDim2.new(0.5, -160, 0.5, -110)
 Window.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
 Window.BorderSizePixel = 1
-Window.BorderColor3 = Color3.fromRGB(255, 255, 255) -- Sharp Retro White Outline
+Window.BorderColor3 = Color3.fromRGB(255, 255, 255)
 Window.Active = true
 Window.Draggable = true
 Window.Parent = serious_matrix_hub
@@ -50,7 +50,7 @@ TopBar.BorderSizePixel = 0
 TopBar.Parent = Window
 
 local Title = Instance.new("TextLabel")
-Title.Text = "  serious v3.2 // compact node"
+Title.Text = "  serious v3.4 // compact node"
 Title.Size = UDim2.new(1, 0, 1, 0)
 Title.TextColor3 = Color3.fromRGB(255, 255, 255)
 Title.Font = Enum.Font.Code
@@ -88,7 +88,7 @@ local Layout = Instance.new("UIListLayout")
 Layout.Padding = UDim.new(0, 8)
 Layout.Parent = Container
 
--- Micro Macro Helper for Checkboxes
+-- Checkbox Assembly
 local function CreateCheckbox(labelText, property)
     local F = Instance.new("Frame") F.Size = UDim2.new(1, 0, 0, 20) F.BackgroundTransparency = 1 F.Parent = Container
     local Box = Instance.new("TextButton") Box.Size = UDim2.new(0, 12, 0, 12) Box.Position = UDim2.new(0, 0, 0.5, -6) Box.BackgroundColor3 = Color3.fromRGB(20, 20, 20) Box.BorderColor3 = Color3.fromRGB(255, 255, 255) Box.Text = "" Box.Parent = F
@@ -105,7 +105,6 @@ end
 CreateCheckbox("enable bounding esp boxes", "Boxes")
 CreateCheckbox("enable dynamic overhead tags", "Names")
 
--- Footnote
 local Footer = Instance.new("TextLabel")
 Footer.Text = "[PRESS LEFT CONTROL TO DROP MENUS]"
 Footer.Size = UDim2.new(1, 0, 0, 15)
@@ -117,38 +116,41 @@ Footer.BackgroundTransparency = 1
 Footer.Parent = Window
 
 ------------------------------------------------------------
--- VISUAL TRACKING ACTIVE RENDERING PIPELINE
+-- VISUAL TRACKING ACTIVE RENDERING PIPELINE (BOX FIX)
 ------------------------------------------------------------
 local function createTrackerGui(instance, name)
     if activeTrackers[instance] then return end
 
+    -- UN-BLOCKABLE 3D BOX METHOD
+    local selectionBox = Instance.new("SelectionBox")
+    selectionBox.Name = "serious_3d_box"
+    selectionBox.Color3 = Config.TrackerColor
+    selectionBox.LineThickness = 0.05
+    selectionBox.AlwaysOnTop = true
+    selectionBox.Visible = false
+    selectionBox.Adornee = instance
+    selectionBox.Parent = serious_matrix_hub
+
+    -- Overhead 2D Tag
     local bbGui = Instance.new("BillboardGui")
-    bbGui.Name = "ActiveMatrixNode"
-    bbGui.Size = UDim2.new(0, 50, 0, 50) -- Box shape profile
+    bbGui.Name = "serious_tag"
+    bbGui.Size = UDim2.new(0, 100, 0, 20)
     bbGui.AlwaysOnTop = true
+    bbGui.ExtentsOffset = Vector3.new(0, 2, 0)
     bbGui.Adornee = instance
     bbGui.Parent = serious_matrix_hub
 
-    local borderBox = Instance.new("Frame")
-    borderBox.Size = UDim2.new(1, 0, 1, 0)
-    borderBox.BackgroundTransparency = 1
-    borderBox.BorderSizePixel = 1
-    borderBox.BorderColor3 = Config.TrackerColor
-    borderBox.Visible = false
-    borderBox.Parent = bbGui
-
     local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, 0, 0, 12)
-    label.Position = UDim2.new(0, 0, 0, -14)
+    label.Size = UDim2.new(1, 0, 1, 0)
     label.BackgroundTransparency = 1
     label.Text = string.upper(name)
     label.TextColor3 = Color3.fromRGB(255, 255, 255)
     label.Font = Enum.Font.Code
-    label.TextSize = 10
+    label.TextSize = 11
     label.Visible = false
     label.Parent = bbGui
 
-    activeTrackers[instance] = {Gui = bbGui, Box = borderBox, Label = label}
+    activeTrackers[instance] = {Box = selectionBox, Gui = bbGui, Label = label}
 end
 
 RunService.RenderStepped:Connect(function()
@@ -170,13 +172,13 @@ RunService.RenderStepped:Connect(function()
 
     for part, element in pairs(activeTrackers) do
         if not part or not part.Parent then
+            if element.Box then element.Box:Destroy() end
             if element.Gui then element.Gui:Destroy() end
             activeTrackers[part] = nil
         end
     end
 end)
 
--- Absolute Override Keyboard Toggle
 local windowOpen = true
 UserInputService.InputBegan:Connect(function(input)
     if input.KeyCode == Enum.KeyCode.LeftControl then
