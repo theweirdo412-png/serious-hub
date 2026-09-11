@@ -1,18 +1,21 @@
 -- ====================================================================
--- serious METRIC INTERFACE v2.5 - RETRO BORDER MATRIX (RIVALS STYLE)
+-- serious METRIC INTERFACE v2.6 - PLAYER GUI REDIRECT (DISPLAY FIX)
 -- ====================================================================
 
 local TweenService = game:GetService("TweenService")
 local UserInputService = game:GetService("UserInputService")
-local CoreGui = game:GetService("CoreGui")
+local Players = game:GetService("Players")
 
-if CoreGui:FindFirstChild("serious_matrix_hub") then
-    CoreGui.serious_matrix_hub:Destroy()
+local LocalPlayer = Players.LocalPlayer
+local PlayerGui = LocalPlayer:WaitForChild("PlayerGui")
+
+if PlayerGui:FindFirstChild("serious_matrix_hub") then
+    PlayerGui.serious_matrix_hub:Destroy()
 end
 
 local serious_matrix_hub = Instance.new("ScreenGui")
 serious_matrix_hub.Name = "serious_matrix_hub"
-serious_matrix_hub.Parent = CoreGui
+serious_matrix_hub.Parent = PlayerGui -- FIXED: Saved to PlayerGui to bypass display block
 serious_matrix_hub.ResetOnSpawn = false
 
 -- Main CanvasGroup (Forces clean fade-in execution transitions)
@@ -20,10 +23,10 @@ local Window = Instance.new("CanvasGroup")
 Window.Name = "MainWindow"
 Window.Size = UDim2.new(0, 520, 0, 440)
 Window.Position = UDim2.new(0.5, -260, 0.5, -220)
-Window.BackgroundColor3 = Color3.fromRGB(10, 10, 10) -- Deep Void Black
+Window.BackgroundColor3 = Color3.fromRGB(10, 10, 10)
 Window.BorderSizePixel = 1
-Window.BorderColor3 = Color3.fromRGB(255, 255, 255) -- Sharp Retro White Outline
-Window.GroupTransparency = 1 -- Hidden initially for tween animation
+Window.BorderColor3 = Color3.fromRGB(255, 255, 255)
+Window.GroupTransparency = 1
 Window.Parent = serious_matrix_hub
 
 -- Dragging Core Engine
@@ -104,7 +107,7 @@ local function CreatePage(name, order)
     Btn.MouseButton1Click:Connect(function()
         if activePage then activePage.Visible = false end
         for _, b in pairs(TabsPanel:GetChildren()) do if b:IsA("TextButton") then b.TextColor3 = Color3.fromRGB(160, 160, 160) b.BorderColor3 = Color3.fromRGB(45, 45, 45) end end
-        Btn.TextColor3 = Color3.fromRGB(0, 191, 255) -- Blue highlight on select
+        Btn.TextColor3 = Color3.fromRGB(0, 191, 255)
         Btn.BorderColor3 = Color3.fromRGB(0, 191, 255)
         ContentFrame.Visible = true activePage = ContentFrame
     end)
@@ -117,7 +120,7 @@ local function CreateSection(parentCol, titleText, height)
     local Sec = Instance.new("Frame")
     Sec.Size = UDim2.new(1, 0, 0, height)
     Sec.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
-    Sec.BorderColor3 = Color3.fromRGB(255, 255, 255) -- White section outline
+    Sec.BorderColor3 = Color3.fromRGB(255, 255, 255)
     Sec.Parent = parentCol
 
     local Head = Instance.new("TextLabel")
@@ -152,12 +155,11 @@ local function AddToggle(sec, text, callback)
     
     local active = false Box.MouseButton1Click:Connect(function()
         active = not active
-        Box.BackgroundColor3 = active and Color3.fromRGB(0, 191, 255) or Color3.fromRGB(20, 20, 20) -- Blue toggle tracking
+        Box.BackgroundColor3 = active and Color3.fromRGB(0, 191, 255) or Color3.fromRGB(20, 20, 20)
         Box.BorderColor3 = active and Color3.fromRGB(0, 191, 255) or Color3.fromRGB(255, 255, 255)
         callback(active)
     end)
     
-    -- Smooth hover translation micro tweaks
     Box.MouseEnter:Connect(function() TweenService:Create(L, TweenInfo.new(0.12), {TextColor3 = Color3.fromRGB(255, 255, 255)}):Play() end)
     Box.MouseLeave:Connect(function() TweenService:Create(L, TweenInfo.new(0.12), {TextColor3 = Color3.fromRGB(200, 200, 200)}):Play() end)
 end
@@ -168,20 +170,19 @@ local function AddDropdown(sec, text, optionText)
     local D = Instance.new("TextButton") D.Size = UDim2.new(1, 0, 0, 16) D.Position = UDim2.new(0, 0, 0, 14) D.BackgroundColor3 = Color3.fromRGB(15, 15, 15) D.BorderColor3 = Color3.fromRGB(255, 255, 255) D.Text = " " .. optionText .. "  ▼" D.TextColor3 = Color3.fromRGB(255, 255, 255) D.Font = Enum.Font.Code D.TextSize = 11 D.TextXAlignment = Enum.TextXAlignment.Left D.Parent = F
 end
 
--- POPULATING TABS (Matches "Main, World, ESP, Visuals, Character" look)
+-- POPULATING TABS
 CreatePage("main", 1)
 CreatePage("world", 2)
 CreatePage("esp", 3)
 CreatePage("visuals", 4)
 CreatePage("settings", 5)
 
--- CONSTRUCTING COLUMN BOUNDS INSIDE 'MAIN' PAGE
 local MainLeft = pages["main"].Left
 local MainRight = pages["main"].Right
 
 -- Left Column Blocks
 local SilentAimSec = CreateSection(MainLeft, "silent aim / aimbot", 130)
-AddToggle(SilentAimSec, "enabled", function(v) print("Core System:", v) end)
+AddToggle(SilentAimSec, "enabled", function(v) end)
 AddToggle(SilentAimSec, "manipulation", function(v) end)
 AddToggle(SilentAimSec, "closest part", function(v) end)
 AddToggle(SilentAimSec, "visualize", function(v) end)
@@ -206,4 +207,8 @@ AddDropdown(WeaponSec, "grenade options", "none")
 local RageSec = CreateSection(MainRight, "ragebot configuration", 140)
 AddToggle(RageSec, "enabled", function(v) end)
 AddToggle(RageSec, "void spam", function(v) end)
-AddDropdown(RageSec, "attack matrix mode", "gun")AddDropdown(RageSec, "preferred asset slot", "primary")-- Boot Tab Set Highlight Target Defaultpages["main"].Button.TextColor3 = Color3.fromRGB(0, 191, 255)pages["main"].Button.BorderColor3 = Color3.fromRGB(0, 191, 255)Deck["Frame"].Visible = true activePage = Deck["Frame"]-- Smooth Scale up and Canvas Group Alpha Transition Fading LoopWindow.Size = UDim2.new(0, 480, 0, 400)Window.Position = UDim2.new(0.5, -240, 0.5, -200)TweenService:Create(Window, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {GroupTransparency = 0, Size = UDim2.new(0, 520, 0, 440), Position = UDim2.new(0.5, -260, 0.5, -220)}):Play()-- Global Control Panel Overlay Toggle Bind (LeftControl)local windowOpen = trueUserInputService.InputBegan:Connect(function(input, processed)if not processed and input.KeyCode == Enum.KeyCode.LeftControl thenwindowOpen = not windowOpen Window.Visible = windowOpenendend)
+AddDropdown(RageSec, "attack matrix mode", "gun")
+AddDropdown(RageSec, "preferred asset slot", "primary")
+
+-- Boot Tab Highlight Default
+pages["main"].Button.TextColor3 = Color3.fromRGB(0, 191, 255)pages["main"].Button.BorderColor3 = Color3.fromRGB(0, 191, 255)pages["main"].Left.Parent.Visible = true activePage = pages["main"].Left.Parent-- Smooth Scale up and Canvas Group Alpha Transition Fading LoopWindow.Size = UDim2.new(0, 480, 0, 400)Window.Position = UDim2.new(0.5, -240, 0.5, -200)TweenService:Create(Window, TweenInfo.new(0.45, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {GroupTransparency = 0, Size = UDim2.new(0, 520, 0, 440), Position = UDim2.new(0.5, -260, 0.5, -220)}):Play()-- Global Control Panel Overlay Toggle Bind (LeftControl)local windowOpen = trueUserInputService.InputBegan:Connect(function(input, processed)if not processed and input.KeyCode == Enum.KeyCode.LeftControl thenwindowOpen = not windowOpen Window.Visible = windowOpenendend)
