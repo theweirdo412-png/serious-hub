@@ -211,6 +211,88 @@ AddSlider(SilentAimSec, "radius", "100px")
 AddSlider(SilentAimSec, "smoothing", "100%")
 
 local TargetingSec = CreateSection(M_Left, "targeting parameters", 155)
-local windowOpen = trueUserInputService.InputBegan:Connect(function(input)if input.KeyCode == Enum.KeyCode.LeftControl thenwindowOpen = not windowOpenWindow.Visible = windowOpenendend)
-    local selectionBox = Instance.new("SelectionBox")selectionBox.Name = "serious_3d_box"selectionBox.Color3 = Config.TrackerColorselectionBox.LineThickness = 0.05selectionBox.AlwaysOnTop = trueselectionBox.Visible = falseselectionBox.Adornee = instanceselectionBox.Parent = serious_matrix_hublocal bbGui = Instance.new("BillboardGui")bbGui.Name = "serious_tag"bbGui.Size = UDim2.new(0, 100, 0, 20)bbGui.AlwaysOnTop = truebbGui.ExtentsOffset = Vector3.new(0, 2, 0)bbGui.Adornee = instancebbGui.Parent = serious_matrix_hublocal label = Instance.new("TextLabel")label.Size = UDim2.new(1, 0, 1, 0)label.BackgroundTransparency = 1label.Text = string.upper(name)label.TextColor3 = Color3.fromRGB(255, 255, 255)label.Font = Enum.Font.Codelabel.TextSize = 11label.Visible = falselabel.Parent = bbGuiactiveTrackers[instance] = {Box = selectionBox, Gui = bbGui, Label = label}endRunService.RenderStepped:Connect(function()local targets = workspace:GetDescendants()for i = 1, #targets dolocal obj = targets[i]if obj:IsA("BasePart") and (obj.Name == "Target" or (obj.Name == "Head" and not Players:GetPlayerFromCharacter(obj.Parent))) thenif not obj:IsDescendantOf(LocalPlayer.Character) thencreateTrackerGui(obj, obj.Parent.Name or "Target")local element = activeTrackers[obj]if element thenelement.Box.Visible = Config.Boxeselement.Label.Visible = Config.Namesendendendendfor part, element in pairs(activeTrackers) doif not part or not part.Parent thenif element.Box then element.Box:Destroy() endif element.Gui then element.Gui:Destroy() endactiveTrackers[part] = nilendendend)(FIXED blank startup bug)pages["main"].Button.TextColor3 = Color3.fromRGB(59, 122, 219)pages["main"].Button.BackgroundColor3 = Color3.fromRGB(30, 30, 30)pages["main"].Frame.Visible = trueactivePage = pages["main"].Frame
-         (FIXED toggle freeze)local windowOpen = trueUserInputService.InputBegan:Connect(function(input)if input.KeyCode == Enum.KeyCode.LeftControl thenwindowOpen = not windowOpenWindow.Visible = windowOpenendend)
+AddToggle(TargetingSec, "visible only", "VisOnly")
+AddToggle(TargetingSec, "ignore protected", "IgnoreProt")
+AddToggle(TargetingSec, "disable on flash", "DisFlash")
+AddToggle(TargetingSec, "limit distance", "LimitDist")
+AddDropdown(TargetingSec, "target part", "Head")
+
+local TriggerSec = CreateSection(M_Right, "triggerbot core", 130)
+AddToggle(TriggerSec, "enabled", "Trigger")
+AddSlider(TriggerSec, "reaction time", "100ms")
+AddSlider(TriggerSec, "forget time", "0.5s")
+AddSlider(TriggerSec, "shoot delay", "0ms")
+
+local WeaponSec = CreateSection(M_Right, "weapon adjustments", 110)
+AddToggle(WeaponSec, "no spread", "NoSpread")
+AddToggle(WeaponSec, "full auto", "FullAuto")
+AddToggle(WeaponSec, "always backstab", "Backstab")
+AddSlider(WeaponSec, "firerate", "100%")
+
+------------------------------------------------------------
+-- TAB 2: WORLD
+------------------------------------------------------------
+local W_Left = pages["world"].Left
+local CameraSec = CreateSection(W_Left, "camera options", 130)
+addToggle(CameraSec, "anti flashbang", "AntiFlash")
+AddToggle(CameraSec, "fov changer", "FovChanger")
+AddSlider(CameraSec, "fov", "103")
+AddToggle(CameraSec, "aspect ratio", "Aspect")
+AddSlider(CameraSec, "ratio x", "1")
+
+------------------------------------------------------------
+-- TAB 3: ESP
+------------------------------------------------------------
+local E_Left = pages["esp"].Left
+local DiagnosticsSec = CreateSection(E_Left, "enemy visual layers", 80)
+AddToggle(DiagnosticsSec, "enable bounding esp boxes", "Boxes")
+AddToggle(DiagnosticsSec, "enable dynamic overhead tags", "Names")
+
+------------------------------------------------------------
+-- TAB 7: SETTINGS
+------------------------------------------------------------
+local S_Left, S_Right = pages["settings"].Left, pages["settings"].Right
+local MenuSec = CreateSection(S_Left, "menu configs", 80)
+AddDropdown(MenuSec, "menu bind", "LeftControl")
+AddSlider(MenuSec, "menu transparency", "42%")
+
+local ConfigSec = CreateSection(S_Right, "configuration profile", 120)
+AddDropdown(ConfigSec, "config list", "...")
+AddDropdown(ConfigSec, "import from clipboard", "Paste config here...")
+
+--------------------------------============================
+-- VISUAL TRACKING ACTIVE RENDERING PIPELINE (3D BOX ENGINE)
+
+local function createTrackerGui(instance, name)if activeTrackers[instance] then return end
+    local selectionBox = Instance.new("SelectionBox")
+    selectionBox.Name = "serious_3d_box"
+    selectionBox.Color3 = Config.TrackerColor
+    selectionBox.LineThickness = 0.05
+    selectionBox.AlwaysOnTop = true
+    selectionBox.Visible = false
+    selectionBox.Adornee = instance
+    selectionBox.Parent = serious_matrix_hub
+
+    local bbGui = Instance.new("BillboardGui")
+    bbGui.Name = "serious_tag"
+    bbGui.Size = UDim2.new(0, 100, 0, 20)
+    bbGui.AlwaysOnTop = true
+    bbGui.ExtentsOffset = Vector3.new(0, 2, 0)
+    bbGui.Adornee = instance
+    bbGui.Parent = serious_matrix_hub
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 1, 0)
+    label.BackgroundTransparency = 1
+    label.Text = string.upper(name)label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.Font = Enum.Font.Code
+    label.TextSize = 11
+    label.Visible = false
+    label.Parent = bbGui
+
+    activeTrackers[instance] = {Box = selectionBox, Gui = bbGui, Label = label}end
+
+RunService.RenderStepped:Connect(function()
+        local targets = workspace:GetDescendants()
+        end
+end)
